@@ -1,5 +1,7 @@
 # Meower
 This is the github repo for the hackcmu
-Good Luck 
-XOXO 
+Goodest Luck 
+XOXO
 Rin
+
+hello :3 merge conflict testing?
