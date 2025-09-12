@@ -16,7 +16,7 @@
   "description": "Blocks interaction with the current tab via a full-screen overlay.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["<all_urls>"],
-  "background": { "service_worker": "background.js" },
+  "background": { "service_worker": "scripts/background.js" },
   "content_scripts": [
     {
       "matches": [
