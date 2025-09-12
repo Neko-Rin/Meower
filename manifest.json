@@ -1,9 +1,9 @@
 {
   "name": "FoFix",
+  "version": "1.0",
+  "manifest_version": 3,
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon.png",
-    "version": "1.0",
-    "manifest_version": 3
+    "default_icon": "icon.png"
   }
 }
