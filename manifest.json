@@ -2,6 +2,8 @@
   "name": "FoFix",
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon.png"
+    "default_icon": "icon.png",
+    "version": "1.0",
+    "manifest_version": 3
   }
 }
