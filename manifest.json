@@ -6,7 +6,7 @@
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
-  
+
   "icons": {
     "16": "icon.png",
     "32": "icon.png",
@@ -22,7 +22,7 @@
       "matches": [
         "https://www.instagram.com/*"
       ],
-      "js": ["content.js"],
+      "js": ["scripts/content.js"],
       "run_at": "document_idle"
     }
   ],
