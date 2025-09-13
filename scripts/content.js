@@ -64,7 +64,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
         #${OVERLAY_ID} {
   position: fixed; inset: 0; z-index: 2147483647;
   background: radial-gradient(circle at center, #B3E5FC, #1A237E);
-  display: flex; align-items: center; justify-content: center; text-align: center;
+  display: flex; align-items: left; justify-content: center; text-align: left;
   font: 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   pointer-events: none; opacity: 0; transition: opacity 1s ease-in-out;
 }
