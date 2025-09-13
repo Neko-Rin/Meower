@@ -6,34 +6,47 @@
       "Hold for four seconds",
       "Breathe out for four seconds",
       "Hold for four seconds"
-    ]
+    ],
+    "time": 48,
+    "source":"Balban, M. Y., Neri, E., Kogon, M. M., Weed, L., Nouriani, B., Jo, B., Holl, G., Zeitzer, J. M., Spiegel, D., & Huberman, A. D. (2023). Brief structured respiration practices enhance mood and reduce physiological arousal. Cell reports. Medicine, 4(1), 100895. https://doi.org/10.1016/j.xcrm.2022.100895"
   },
   "Physiological Sighing": {
     "enabled": true,
     "steps": [
       "Two sharp inhales",
       "Long exhale, as if sighing"
-    ]
-  },
-  "Take a 5-Minute Walk": {
-    "enabled": false,
-    "steps": [
-      "A 5-minute walk every 30 minutes could offset the effects of prolonged sitting."
-    ]
+    ],
+    "time": 5,
+    "source":"Balban, M. Y., Neri, E., Kogon, M. M., Weed, L., Nouriani, B., Jo, B., Holl, G., Zeitzer, J. M., Spiegel, D., & Huberman, A. D. (2023). Brief structured respiration practices enhance mood and reduce physiological arousal. Cell reports. Medicine, 4(1), 100895. https://doi.org/10.1016/j.xcrm.2022.100895"
   },
   "Stand Up and Stretch": {
     "enabled": true,
     "steps": [
       "Stand up tall",
       "Reach arms overhead and stretch for 10 seconds"
-    ]
+    ],
+    "time": 15,
+    "source":"Mahindru, A., Patil, P., & Agrawal, V. (2023). Role of Physical Activity on Mental Health and Well-Being: A Review. Cureus, 15(1), e33475. https://doi.org/10.7759/cureus.33475"
   },
   "Progressive Muscle Relaxation": {
     "enabled": true,
     "steps": [
-      "Take a deep breath, notice the feeling of air filling your lungs, hold it, then release slowly.",
-      "Repeat more slowly, imagining the tension leaving your body."
-    ]
+      "Take a deep breath in and out",
+      "Tense your feel by curling your toes. Pause and notice the feeling",
+      "Release the tension and notice the feeling of relaxation",
+      "Next, tense your thighs by squeezing your legs together. Pause and notice the feeling",
+      "Release",
+      "Squeeze your shoulder blades together. Pause",
+      "Release",
+      "Tense your arms",
+      "Release",
+      "Tense your neck and face",
+      "Release",
+      "Finally, tense your entire body and hold for a few seconds",
+      "Release and let your entire body go limp"
+    ],
+    "time": 30,
+    "source":"Toussaint, L., Nguyen, Q. A., Roettger, C., Dixon, K., Offenbächer, M., Kohls, N., Hirsch, J., & Sirois, F. (2021). Effectiveness of Progressive Muscle Relaxation, Deep Breathing, and Guided Imagery in Promoting Psychological and Physiological States of Relaxation. Evidence-based complementary and alternative medicine : eCAM, 2021, 5924040. https://doi.org/10.1155/2021/5924040"
   },
   "54321 Senses": {
     "enabled": true,
@@ -43,6 +56,8 @@
       "Notice 3 things you can hear",
       "Notice 2 things you can smell",
       "Notice 1 thing you can taste"
-    ]
+    ],
+    "time": 30,
+    "source": "https://www.urmc.rochester.edu/behavioral-health-partners/bhp-blog/april-2018/5-4-3-2-1-coping-technique-for-anxiety"
   }
 }

@@ -1,9 +1,16 @@
+:root {
+  --color-light-green: #D0EFB1;
+  --color-soft-green: #B3D89C;
+  --color-muted-teal: #9DC3C2;
+  --color-cool-blue: hsl(195, 30%, 59%);
+  --color-deep-blue: #4D7298;
+}
 body {
   width: 220px;
   font-family: Arial, sans-serif;
   text-align: left;
   padding: 10px;
-  background-color: #ffd684;
+  background-color: var(--color-muted-teal);
 }
 
 #title {
@@ -205,7 +212,7 @@ input:checked + .slider:before {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
-  background: radial-gradient(circle, #ADD8E6, #00008B);
+  background: radial-gradient(circle, var(--color-muted-teal), var(--color-deep-blue));
   display: flex;
   align-items: center;
   justify-content: center;
