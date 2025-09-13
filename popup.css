@@ -10,7 +10,7 @@ body {
   font-family: Arial, sans-serif;
   text-align: left;
   padding: 10px;
-  background-color: radial-gradient(circle at center,var(--bg-color),var(--accent-color));
+  background: radial-gradient(circle at center,var(--bg-color),var(--accent-color));
 }
 
 #title {
