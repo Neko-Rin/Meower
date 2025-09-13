@@ -15,10 +15,10 @@
   },
 
   "permissions": ["activeTab", "scripting", "storage", "offscreen"],
-  "host_permissions": ["https://www.instagram.com/*"],
+  "host_permissions": ["https://www.instagram.com/*", "https://x.com/*"]
+,
 
   "background": { "service_worker": "scripts/background.js" },
-
   "content_scripts": [
     {
       "matches": ["https://www.instagram.com/*", "https://x.com/*"],

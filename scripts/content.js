@@ -53,7 +53,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
     const enabled = Object.entries(exercises);
     if (enabled.length === 0) return null;
     const [name, data] = enabled[Math.floor(Math.random() * enabled.length)];
-    return { name, steps: data.steps, source: data.source };
+    return { name, steps: data.steps, source: data.source, time: data.time};
   }
 
   function ensureOverlay() {
@@ -61,35 +61,45 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
       const style = document.createElement("style");
       style.id = STYLE_ID;
       style.textContent = `
-        #${OVERLAY_ID} {
+#${OVERLAY_ID} {
   position: fixed; inset: 0; z-index: 2147483647;
   background: radial-gradient(circle at center, #B3E5FC, #1A237E);
-  display: flex; align-items: left; justify-content: center; text-align: left;
+  display: flex; align-items: center; justify-content: center; /* centers box vertically & horizontally */
+  text-align: left;
   font: 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   pointer-events: none; opacity: 0; transition: opacity 1s ease-in-out;
 }
 #${OVERLAY_ID}.show {
   opacity: 1; pointer-events: auto;
 }
+
 #${OVERLAY_ID} .box {
   max-width: 640px;
-  padding: 48px 56px;
+  max-height: 700px;
+  padding: 24px 32px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+
+  display: flex;
+  flex-direction: column;   /* stack content vertically */
+  justify-content: space-between; /* push last item (#academic) to bottom */
 }
+
 #${OVERLAY_ID} h1 {
   margin: 0 0 16px;
   font-size: 2em;
   color: #6e4f32;
 }
+
 #${OVERLAY_ID} p {
   margin: 12px 0;
   line-height: 1.6;
   opacity: 0.95;
   color: #6e4f32;
 }
+
 #tab-locker-unlock {
   display: none;
   margin-top: 20px;
@@ -98,13 +108,20 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  background: #FFEB3B;
+  background: #B3D89C;
   color: #333;
   transition: background 0.3s;
 }
 #tab-locker-unlock:hover {
-  background: #FDD835;
+  background: #D0EFB1;
 }
+
+#academic {
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.8;
+}
+
 
       `;
       document.documentElement.appendChild(style);
@@ -119,7 +136,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
     <h1 id="tab-locker-title">Pause for a Breath</h1>
     <p id="tab-locker-message">Interaction is disabled on this tab.</p>
     <button id="tab-locker-unlock" type="button">Unlock</button>
-    <p id="academic"><small>source: you're mother</small></p>
+    <p id="academic"><small>source: i made it up</small></p>
   </div>`;
       document.documentElement.appendChild(overlay);
 
@@ -147,6 +164,7 @@ async function showRandomExercise() {
   document.getElementById("academic").innerHTML=ex.source
 
     timing = ex.time
+  return ex.time
 }
 
 function ensureAnimPauseStyle() {
@@ -269,7 +287,7 @@ function ensureAnimPauseStyle() {
   if (isLocked) return;
   ensureOverlay();              // your overlay builder
   showRandomExercise?.();       // optional: populate text if you have this
-  await showRandomExercise();              // updates `timing`
+  let time = await showRandomExercise();              // updates `timing`
 
   const overlay = document.getElementById(OVERLAY_ID);
   if (!overlay) return;
@@ -309,11 +327,11 @@ function ensureAnimPauseStyle() {
     });
   });
   overlay.focus({ preventScroll: true });
-
+  console.log(time)
   setTimeout(function() {
     const btn = document.getElementById("tab-locker-unlock");
     if (btn) btn.style.display = "inline-block"; // or "block"
-}, 7000);
+}, time*1000);
 
   isLocked = true;
 }
