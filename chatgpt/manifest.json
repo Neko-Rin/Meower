@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Locker",
+  "version": "1.0.0",
+  "description": "Blocks interaction with the current tab via a full-screen overlay.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "action": { "default_popup": "popup.html" },
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "commands": {
+    "toggle-lock": {
+      "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
+      "description": "Toggle tab lock"
+    }
+  }
+}
