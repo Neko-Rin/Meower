@@ -14,7 +14,7 @@
     "128": "images/icon.png"
   },
 
-  "permissions": ["activeTab", "scripting", "storage", "offscreen", "identity"],
+  "permissions": ["activeTab", "scripting", "storage", "offscreen"],
   "host_permissions": ["https://www.instagram.com/*"],
 
   "background": { "service_worker": "scripts/background.js" },
@@ -30,7 +30,7 @@
   ],
 "web_accessible_resources": [
     {
-      "resources": ["sql-wasm/sql-wasm.wasm", "exercises.json"],
+      "resources": ["sql-wasm/sql-wasm.wasm", "exercises.json", "images/*.GIF"],
       "matches": ["<all_urls>"]
     }
   ],
