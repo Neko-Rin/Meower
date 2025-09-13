@@ -30,7 +30,7 @@
   ],
 "web_accessible_resources": [
     {
-      "resources": ["sql-wasm/sql-wasm.wasm", "exercises.json"],
+      "resources": ["sql-wasm/sql-wasm.wasm", "exercises.json", "images/*.GIF"],
       "matches": ["<all_urls>"]
     }
   ],
