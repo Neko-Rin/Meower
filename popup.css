@@ -1,16 +1,16 @@
 :root {
   --color-light-green: #D0EFB1;
   --color-soft-green: #B3D89C;
-  --color-muted-teal: #9DC3C2;
-  --color-cool-blue: hsl(195, 30%, 59%);
-  --color-deep-blue: #4D7298;
+  --bg-color: #9DC3C2;
+  --highlight-color: hsl(195, 30%, 59%);
+  --accent-color: #4D7298;
 }
 body {
   width: 220px;
   font-family: Arial, sans-serif;
   text-align: left;
   padding: 10px;
-  background-color: var(--color-muted-teal);
+  background-color: var(--bg-color);
 }
 
 #title {
@@ -54,6 +54,10 @@ label {
   margin: 10px 0;
 }
 
+.switch input:checked + .slider {
+  background-color: var(--accent-color);
+}
+
 
 .slider {
   position: absolute;
@@ -62,7 +66,7 @@ label {
   left: 0;
   right: 0; 
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--highlight-color);
   transition: .4s;
   border-radius: 26px;
 }
@@ -79,9 +83,6 @@ label {
   border-radius: 50%;
 }
 
-input:checked + .slider {
-  background-color: #4CAF50;
-}
 
 input:checked + .slider:before {
   transform: translateX(24px);
@@ -89,10 +90,10 @@ input:checked + .slider:before {
 
 /* ---------- Main branch variables ---------- */
 :root {
-  --ms-border: #4a90e2;
+  --ms-border: var(--accent-color);
   --ms-border-focus: #2c6ecb;
-  --ms-bg: #fff;
-  --ms-bg-hover: #f5f8ff;
+  --ms-bg: var(--bg-color);
+  --ms-bg-hover: var(--highlight-color);
   --ms-chip-bg: #eaf2ff;
   --ms-chip-text: #1f3a60;
   --ms-text: #222;
@@ -214,7 +215,7 @@ input:checked + .slider:before {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
-  background: radial-gradient(circle, var(--color-muted-teal), var(--color-deep-blue));
+  background: radial-gradient(circle, var(--bg-color), var(--accent-color));
   display: flex;
   align-items: center;
   justify-content: center;

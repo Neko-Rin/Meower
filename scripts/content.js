@@ -64,7 +64,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
         #${OVERLAY_ID} {
   position: fixed; inset: 0; z-index: 2147483647;
   background: radial-gradient(circle at center, #B3E5FC, #1A237E);
-  display: flex; align-items: center; justify-content: center; text-align: center;
+  display: flex; align-items: left; justify-content: center; text-align: left;
   font: 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   pointer-events: none; opacity: 0; transition: opacity 1s ease-in-out;
 }
@@ -91,6 +91,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
   color: #6e4f32;
 }
 #tab-locker-unlock {
+  display: none;
   margin-top: 20px;
   padding: 12px 20px;
   border: 0;
@@ -268,6 +269,8 @@ function ensureAnimPauseStyle() {
   if (isLocked) return;
   ensureOverlay();              // your overlay builder
   showRandomExercise?.();       // optional: populate text if you have this
+  await showRandomExercise();              // updates `timing`
+  const lockDuration = getLockDurationMs(); // <-- compute NOW
   const overlay = document.getElementById(OVERLAY_ID);
   if (!overlay) return;
 
@@ -298,7 +301,7 @@ function ensureAnimPauseStyle() {
     window[BEFORE_UNLOAD_FLAG] = true;
   }
 
-  // Show overlay with fade-in (you already have CSS: opacity 0 -> 1 on .show)
+  // Show overlay with fade-in (already have CSS: opacity 0 -> 1 on .show)
   overlay.style.display = "flex";        // ensure it's renderable before adding class
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -306,6 +309,11 @@ function ensureAnimPauseStyle() {
     });
   });
   overlay.focus({ preventScroll: true });
+
+  setTimeout(function() {
+    const btn = document.getElementById("tab-locker-unlock");
+    if (btn) btn.style.display = "inline-block"; // or "block"
+}, 7000);
 
   isLocked = true;
 }
@@ -345,6 +353,8 @@ async function unlockSafe() {
     window.removeEventListener("beforeunload", beforeUnloadHandler);
     window[BEFORE_UNLOAD_FLAG] = false;
   }
+  const btn = document.getElementById("tab-locker-unlock");
+  if (btn) btn.style.display = "none";
 
   isLocked = false;
   unlockingInProgress = false;
