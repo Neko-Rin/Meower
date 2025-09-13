@@ -268,6 +268,8 @@ function ensureAnimPauseStyle() {
   if (isLocked) return;
   ensureOverlay();              // your overlay builder
   showRandomExercise?.();       // optional: populate text if you have this
+  await showRandomExercise();              // updates `timing`
+  const lockDuration = getLockDurationMs(); // <-- compute NOW
   const overlay = document.getElementById(OVERLAY_ID);
   if (!overlay) return;
 
