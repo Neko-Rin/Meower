@@ -8,6 +8,74 @@ const fixesContainer = document.getElementById("fixes-container");
 const showFixesBtn = document.getElementById("show-fixes");
 const backBtn = document.getElementById("back-button");
 
+document.addEventListener("DOMContentLoaded", () => {
+  const mainView = document.getElementById("main-view");
+  const manageView = document.getElementById("manage-view");
+
+  const addBtn = document.getElementById("addSite");
+  const newSiteInput = document.getElementById("newSite");
+
+  const manageBtn = document.getElementById("manage-sites");
+  const backBtn = document.getElementById("back-button");
+  const deleteList = document.getElementById("delete-list");
+
+  // ======== Add site (main view) ========
+  addBtn.addEventListener("click", () => {
+    const site = newSiteInput.value.trim();
+    if (!site) return;
+
+    chrome.storage.sync.get(["sites"], (result) => {
+      const sites = Array.isArray(result.sites) ? result.sites : ["instagram.com"];
+      if (!sites.includes(site)) {
+        sites.push(site);
+        chrome.storage.sync.set({ sites });
+      }
+    });
+
+    newSiteInput.value = "";
+  });
+
+  // ======== Switch to Manage view ========
+  manageBtn.addEventListener("click", () => {
+    mainView.style.display = "none";
+    manageView.style.display = "block";
+
+    chrome.storage.sync.get(["sites"], (result) => {
+      const sites = Array.isArray(result.sites) ? result.sites : ["instagram.com"];
+      renderDeleteList(sites);
+    });
+  });
+
+  // ======== Back button ========
+  backBtn.addEventListener("click", () => {
+    manageView.style.display = "none";
+    mainView.style.display = "block";
+  });
+
+  // ======== Render delete list ========
+  function renderDeleteList(sites) {
+    deleteList.innerHTML = "";
+    sites.forEach((site, index) => {
+      const li = document.createElement("li");
+      li.textContent = site;
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "Delete";
+      delBtn.style.marginLeft = "8px";
+
+      delBtn.addEventListener("click", () => {
+        sites.splice(index, 1);
+        chrome.storage.sync.set({ sites }, () => renderDeleteList(sites));
+      });
+
+      li.appendChild(delBtn);
+      deleteList.appendChild(li);
+    });
+  }
+});
+
+
+
 // ======== Load saved settings (basic stuff only) ========
 chrome.storage.sync.get(["fofixEnabled", "fofixTime"], (data) => {
   if (data.fofixEnabled !== undefined) {
