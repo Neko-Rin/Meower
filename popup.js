@@ -8,7 +8,7 @@ const fixesContainer = document.getElementById("fixes-container");
 const showFixesBtn = document.getElementById("show-fixes");
 const backBtn = document.getElementById("back-button");
 
-// ======== Load saved settings ========
+// ======== Load saved settings (basic stuff only) ========
 chrome.storage.sync.get(["fofixEnabled", "fofixTime"], (data) => {
   if (data.fofixEnabled !== undefined) {
     toggle.checked = data.fofixEnabled;
@@ -114,11 +114,16 @@ function close() {
   }
 
   function setSelected(i, value) {
-    const opt = nativeSelect.options[i];
-    opt.selected = !!value;
-    items[i].setAttribute('aria-selected', value ? 'true' : 'false');
-    renderTags();
-  }
+  const opt = nativeSelect.options[i];
+  opt.selected = !!value;
+  items[i].setAttribute('aria-selected', value ? 'true' : 'false');
+  renderTags();
+
+  // ✅ Save selected values
+  const selectedValues = Array.from(nativeSelect.selectedOptions).map(o => o.value);
+  chrome.storage.sync.set({ fofixDropdown: selectedValues });
+}
+
 
   function toggleSelected(i) {
     setSelected(i, !nativeSelect.options[i].selected);
@@ -231,3 +236,13 @@ function close() {
     Array.from(nativeSelect.options).forEach((o, i) => setSelected(i, values.includes(o.value)));
   };
 })();
+
+// ======== Restore dropdown values after IIFE ========
+chrome.storage.sync.get(["fofixDropdown"], (data) => {
+  if (data.fofixDropdown !== undefined) {
+    const ms = document.querySelector('.ms');
+    if (ms && typeof ms.selectValues === "function") {
+      ms.selectValues(data.fofixDropdown);
+    }
+  }
+});
