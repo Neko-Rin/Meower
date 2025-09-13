@@ -26,20 +26,49 @@
       style.id = STYLE_ID;
       style.textContent = `
         #${OVERLAY_ID} {
-          position: fixed; inset: 0; z-index: 2147483647;
-          background: radial-gradient(circle, #ADD8E6, #00008B);
-          display: flex; align-items:center; justify-content:center; text-align:center;
-          font: 16px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-          pointer-events:none; opacity:0; transition: opacity 1s ease-in-out;
-        }
-        #${OVERLAY_ID}.show { opacity:1; pointer-events:auto; }
-        #${OVERLAY_ID} .box {
-          max-width:520px; padding:24px 28px; border-radius:12px;
-          background: rgba(255,255,255,0.06); backdrop-filter: blur(6px);
-        }
-        #${OVERLAY_ID} h1 { margin:0 0 12px; font-size:20px; }
-        #${OVERLAY_ID} p { margin:8px 0; line-height:1.5; opacity:0.9; }
-        #tab-locker-unlock { margin-top:12px; padding:10px 14px; border:0; border-radius:8px; font-weight:600; cursor:pointer; }
+  position: fixed; inset: 0; z-index: 2147483647;
+  background: radial-gradient(circle at center, #B3E5FC, #1A237E);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font: 18px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  pointer-events: none; opacity: 0; transition: opacity 1s ease-in-out;
+}
+#${OVERLAY_ID}.show {
+  opacity: 1; pointer-events: auto;
+}
+#${OVERLAY_ID} .box {
+  max-width: 640px;
+  padding: 48px 56px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+#${OVERLAY_ID} h1 {
+  margin: 0 0 16px;
+  font-size: 2em;
+  color: #6e4f32;
+}
+#${OVERLAY_ID} p {
+  margin: 12px 0;
+  line-height: 1.6;
+  opacity: 0.95;
+  color: #6e4f32;
+}
+#tab-locker-unlock {
+  margin-top: 20px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #FFEB3B;
+  color: #333;
+  transition: background 0.3s;
+}
+#tab-locker-unlock:hover {
+  background: #FDD835;
+}
+
       `;
       document.documentElement.appendChild(style);
     }
@@ -49,13 +78,12 @@
       overlay.id = OVERLAY_ID;
       overlay.tabIndex = -1;
       overlay.innerHTML = `
-        <div class="box" role="dialog" aria-modal="true" aria-label="Screen Locked">
-          <p style="font-size: 1.5em;">Pause for a Breath</p>
-          <p>Interaction is disabled on this tab.</p>
-          <button id="tab-locker-unlock" type="button">Unlock</button>
-          <p><small>Or use the popup / Ctrl/⌘+Shift+L.</small></p>
-        </div>
-      `;
+  <div class="box" role="dialog" aria-modal="true" aria-label="Screen Locked">
+    <h1 id="tab-locker-title">Pause for a Breath</h1>
+    <p id="tab-locker-message">Interaction is disabled on this tab.</p>
+    <button id="tab-locker-unlock" type="button">Unlock</button>
+    <p><small>Or use the popup / Ctrl/⌘+Shift+L.</small></p>
+  </div>`;
       document.documentElement.appendChild(overlay);
 
       overlay.querySelector("#tab-locker-unlock").addEventListener("click", (e) => {
@@ -271,7 +299,6 @@ function unlockSafe() {
 
 currentCycleTime = initialCycleTime;
 startAutoLockCycle();
-
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.fofixTime) {
