@@ -236,6 +236,45 @@
     }
   });
 
+  // ======== JOHN CODE STARTS HERE =========
+
+  // --- Auto lock cycle controlled by fofixTime ---
+  let lockIntervalId = null;
+  let lockDuration = 5000; // always 5s lock
+  let cycleTime = 10000;   // default = 10s
+
+  function startAutoLockCycle() {
+    if (lockIntervalId) clearInterval(lockIntervalId);
+
+    lockIntervalId = setInterval(() => {
+      ensureOverlay();
+      enhancedBlockAllInputs(true); // lock
+      console.log("[Tab Locker] locked for", lockDuration, "ms");
+      setTimeout(() => {
+        enhancedBlockAllInputs(false); // unlock
+        console.log("[Tab Locker] unlocked");
+      }, lockDuration);
+    }, cycleTime);
+  }
+
+  // Load saved time
+  chrome.storage.sync.get(["fofixTime"], (data) => {
+    if (data.fofixTime) {
+      cycleTime = parseFloat(data.fofixTime, 10) * 60 * 1000; // seconds → ms
+    }
+    startAutoLockCycle();
+  });
+
+  // React to future changes
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.fofixTime) {
+      cycleTime = parseFloat(changes.fofixTime.newValue, 10) * 60 * 1000;
+      console.log("[Tab Locker] updated cycleTime to", cycleTime, "ms");
+      startAutoLockCycle();
+    }
+  });
+
+
   // Load-time setup
   ensureOverlay();
   console.log("[Tab Locker] content script ready on:", location.href);
