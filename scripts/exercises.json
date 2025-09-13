@@ -6,34 +6,50 @@
       "Hold for four seconds",
       "Breathe out for four seconds",
       "Hold for four seconds"
-    ]
+    ],
+    "time": 48
   },
   "Physiological Sighing": {
     "enabled": true,
     "steps": [
       "Two sharp inhales",
       "Long exhale, as if sighing"
-    ]
+    ],
+    "time": 5
   },
   "Take a 5-Minute Walk": {
     "enabled": false,
     "steps": [
-      "A 5-minute walk every 30 minutes could offset the effects of prolonged sitting."
-    ]
+      "Go take a 5-minutue walk"
+    ],
+    "time": 300
   },
   "Stand Up and Stretch": {
     "enabled": true,
     "steps": [
       "Stand up tall",
       "Reach arms overhead and stretch for 10 seconds"
-    ]
+    ],
+    "time": 15
   },
   "Progressive Muscle Relaxation": {
     "enabled": true,
     "steps": [
-      "Take a deep breath, notice the feeling of air filling your lungs, hold it, then release slowly.",
-      "Repeat more slowly, imagining the tension leaving your body."
-    ]
+      "Take a deep breath in and out",
+      "Tense your feel by curling your toes. Pause and notice the feeling",
+      "Release the tension and notice the feeling of relaxation",
+      "Next, tense your thighs by squeezing your legs together. Pause and notice the feeling",
+      "Release",
+      "Squeeze your shoulder blades together. Pause",
+      "Release",
+      "Tense your arms",
+      "Release",
+      "Tense your neck and face",
+      "Release",
+      "Finally, tense your entire body and hold for a few seconds",
+      "Release and let your entire body go limp"
+    ],
+    "time": 30
   },
   "54321 Senses": {
     "enabled": true,
@@ -43,6 +59,7 @@
       "Notice 3 things you can hear",
       "Notice 2 things you can smell",
       "Notice 1 thing you can taste"
-    ]
+    ],
+    "time": 30
   }
 }
