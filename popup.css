@@ -2,7 +2,7 @@
   --color-light-green: #D0EFB1;
   --color-soft-green: #B3D89C;
   --color-muted-teal: #9DC3C2;
-  --color-cool-blue: #77A6B6;
+  --color-cool-blue: hsl(195, 30%, 59%);
   --color-deep-blue: #4D7298;
 }
 body {
@@ -10,7 +10,7 @@ body {
   font-family: Arial, sans-serif;
   text-align: left;
   padding: 10px;
-  background-color: #76ddff;
+  background-color: var(--color-muted-teal);
 }
 
 #title {
