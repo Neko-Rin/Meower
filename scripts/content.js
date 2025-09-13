@@ -13,7 +13,7 @@
         #${OVERLAY_ID} {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.88);
+          background: rgba(0,0,0,1);
           color: #fff;
           display: none;
           align-items: center;
@@ -43,10 +43,18 @@
         <div class="box" role="dialog" aria-modal="true" aria-label="Screen Locked">
           <h1>Screen Locked</h1>
           <p>Interaction is disabled on this tab.</p>
+          <button id="tab-locker-unlock" type="button" aria-label="Unlock">Unlock</button>
           <p><small>Use the extension popup or <kbd>Ctrl/⌘+Shift+L</kbd> to unlock.</small></p>
         </div>
       `;
       document.documentElement.appendChild(overlay);
+
+      overlay.querySelector("#tab-locker-unlock")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      // Call your existing unlock path
+      (window.__tabLocker_enhancedBlockAllInputs || blockAllInputs)(false);
+    });
     }
   }
 
