@@ -34,5 +34,11 @@
       "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
       "description": "Toggle tab lock"
     }
-  }
+  },
+
+  "web_accessible_resources": [{
+  "resources": ["exercises.json"],
+  "matches": ["<all_urls>"]
+}]
+
 }
