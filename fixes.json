@@ -1,17 +1,14 @@
 {
-  "Physical": [
-    "Take a walk",
-    "Do a push up",
-    "burn a labubu"
+  "Breathing Exercises": [
+    "Box Breathing",
+    "Physiological Sighing"
   ],
-  "Performative": [
-    "ragebait someone",
-    "drink matcha",
-    "call out a man"
+  "Physical Exercises": [
+    "Take a 5-Minute Walk",
+    "Stand Up and Stretch"
   ],
-  "Mental": [
-    "Meditate",
-    "count sheep",
-    "play rock paper scissors with urself"
+  "Meditation": [
+    "Progressive Muscle Relaxation",
+    "54321 Senses"
   ]
 }
