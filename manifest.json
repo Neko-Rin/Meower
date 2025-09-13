@@ -30,7 +30,7 @@
   ],
 "web_accessible_resources": [
     {
-      "resources": ["sql-wasm/sql-wasm.wasm"],
+      "resources": ["sql-wasm/sql-wasm.wasm", "exercises.json"],
       "matches": ["<all_urls>"]
     }
   ],
@@ -39,11 +39,5 @@
       "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
       "description": "Toggle tab lock"
     }
-  },
-
-  "web_accessible_resources": [{
-  "resources": ["exercises.json"],
-  "matches": ["<all_urls>"]
-}]
-
+  }
 }
