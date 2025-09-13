@@ -36,59 +36,198 @@ timeInput.addEventListener("input", () => {
   chrome.storage.sync.set({ fofixTime: time });
 });
 
-// ======== Category toggles ========
-document.querySelectorAll(".fix-toggle").forEach(toggle => {
-  toggle.addEventListener("change", () => {
-    const category = toggle.dataset.category;
-    const enabled = toggle.checked;
 
-    chrome.storage.sync.set({ [category]: enabled });
+(function () {
+  const ms = document.querySelector('.ms');
+  const nativeSelect = document.getElementById(ms.dataset.for);
+  const trigger = ms.querySelector('.ms-trigger');
+  const panel = ms.querySelector('.ms-panel');
+  const listbox = ms.querySelector('.ms-listbox');
+  const tagsWrap = ms.querySelector('.ms-tags');
+  const placeholder = ms.querySelector('.ms-placeholder');
+  const search = ms.querySelector('.ms-search');
+  const btnSelectAll = ms.querySelector('.ms-select-all');
+  const btnClear = ms.querySelector('.ms-clear');
 
-    chrome.runtime.sendMessage({
-      type: "CATEGORY_TOGGLE",
-      category,
-      enabled
+  let lastIndex = null; // shift-range support
+  let activeIndex = 0;
+  let items = [];
+
+  // Build items from native options
+  function rebuild() {
+    listbox.innerHTML = '';
+    items = Array.from(nativeSelect.options).map((opt, i) => {
+      const li = document.createElement('li');
+      li.className = 'ms-option';
+      li.setAttribute('role', 'option');
+      li.dataset.index = i;
+      li.dataset.label = opt.text.toLowerCase();
+      li.setAttribute('aria-selected', opt.selected ? 'true' : 'false');
+
+      const box = document.createElement('span');
+      box.className = 'ms-checkbox'; box.setAttribute('aria-hidden', 'true');
+
+      const label = document.createElement('span');
+      label.className = 'ms-label';
+      label.textContent = opt.text;
+
+      li.append(box, label);
+      listbox.appendChild(li);
+      return li;
     });
-  });
-});
+    renderTags();
+    filterList(''); // reset filter
+  }
+  rebuild();
 
-// ======== Load fixes JSON ========
-let fixesData = null;
+  function open() {
+  ms.classList.add('open');
+  trigger.setAttribute('aria-expanded', 'true');
+  panel.removeAttribute('hidden');          // <— show panel
 
-fetch(chrome.runtime.getURL('fixes.json'))
-  .then(res => res.json())
-  .then(fixes => {
-    fixesData = fixes;
-    console.log("Fixes loaded:", fixesData);
-  });
+  search.value = '';
+  filterList('');
+  search.focus();
+  setActiveIndex(visibleIndices()[0] ?? 0);
+}
 
-// ======== Show Fixes / Back button logic ========
-showFixesBtn.addEventListener("click", () => {
-  mainView.style.display = "none";
-  fixesView.style.display = "block";
-  loadFixes();
-});
+function close() {
+  ms.classList.remove('open');
+  trigger.setAttribute('aria-expanded', 'false');
+  panel.setAttribute('hidden', '');         // <— hide panel
+  trigger.focus();
+}
 
-backBtn.addEventListener("click", () => {
-  fixesView.style.display = "none";
-  mainView.style.display = "block";
-});
+  function visibleIndices() {
+    return items.reduce((acc, el, i) => {
+      if (el.style.display !== 'none') acc.push(i);
+      return acc;
+    }, []);
+  }
 
-// ======== Populate fixes in fixes-container ========
-function loadFixes() {
-  fixesContainer.innerHTML = ""; // clear previous
+  function setActiveIndex(i) {
+    i = Math.max(0, Math.min(items.length - 1, i));
+    items.forEach(el => el.removeAttribute('data-active'));
+    items[i].setAttribute('data-active', 'true');
+    items[i].scrollIntoView({ block: 'nearest' });
+    activeIndex = i;
+  }
 
-  if (!fixesData) return;
+  function setSelected(i, value) {
+    const opt = nativeSelect.options[i];
+    opt.selected = !!value;
+    items[i].setAttribute('aria-selected', value ? 'true' : 'false');
+    renderTags();
+  }
 
-  for (const category in fixesData) {
-    const catHeader = document.createElement("h3");
-    catHeader.textContent = category;
-    fixesContainer.appendChild(catHeader);
+  function toggleSelected(i) {
+    setSelected(i, !nativeSelect.options[i].selected);
+  }
 
-    fixesData[category].forEach(fixText => {
-      const p = document.createElement("p");
-      p.textContent = fixText;
-      fixesContainer.appendChild(p);
+  function selectRange(from, to, value) {
+    const [start, end] = from < to ? [from, to] : [to, from];
+    for (let i = start; i <= end; i++) setSelected(i, value);
+  }
+
+  function renderTags() {
+    const selected = Array.from(nativeSelect.selectedOptions);
+    tagsWrap.innerHTML = '';
+    if (!selected.length) {
+      placeholder.style.display = '';
+      return;
+    }
+    placeholder.style.display = 'none';
+
+    // Summarize if too many tags
+    const MAX_VISIBLE = 3;
+    selected.slice(0, MAX_VISIBLE).forEach(o => {
+      const tag = document.createElement('span');
+      tag.className = 'ms-tag';
+      tag.title = o.text; // tooltip shows full label
+      tag.textContent = o.text;
+      tagsWrap.appendChild(tag);
+    });
+    if (selected.length > MAX_VISIBLE) {
+      const more = document.createElement('span');
+      more.className = 'ms-tag';
+      more.textContent = `+${selected.length - MAX_VISIBLE} more`;
+      tagsWrap.appendChild(more);
+    }
+  }
+
+  function filterList(q) {
+    const needle = q.trim().toLowerCase();
+    items.forEach((li) => {
+      const match = !needle || li.dataset.label.includes(needle);
+      li.style.display = match ? '' : 'none';
     });
   }
-}
+
+  // Events
+  trigger.addEventListener('click', () => {
+    ms.classList.contains('open') ? close() : open();
+  });
+  trigger.addEventListener('keydown', (e) => {
+    if (['ArrowDown','ArrowUp',' ','Enter'].includes(e.key)) {
+      e.preventDefault(); open();
+    }
+  });
+
+  // Keep focus without flicker
+  listbox.addEventListener('mousedown', (e) => e.preventDefault());
+
+  listbox.addEventListener('click', (e) => {
+    const li = e.target.closest('.ms-option');
+    if (!li) return;
+    const idx = +li.dataset.index;
+
+    if (e.shiftKey && lastIndex !== null) {
+      const targetWillBe = !(nativeSelect.options[idx].selected);
+      selectRange(lastIndex, idx, targetWillBe);
+    } else {
+      toggleSelected(idx);
+    }
+    lastIndex = idx;
+  });
+
+  listbox.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { e.preventDefault(); close(); return; }
+    if (['ArrowDown','ArrowUp','Home','End'].includes(e.key)) {
+      e.preventDefault();
+      const vis = visibleIndices();
+      const pos = vis.indexOf(activeIndex);
+      if (e.key === 'ArrowDown' && pos < vis.length - 1) setActiveIndex(vis[pos + 1]);
+      if (e.key === 'ArrowUp'   && pos > 0)             setActiveIndex(vis[pos - 1]);
+      if (e.key === 'Home') setActiveIndex(vis[0] ?? 0);
+      if (e.key === 'End')  setActiveIndex(vis[vis.length - 1] ?? items.length - 1);
+      return;
+    }
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      toggleSelected(activeIndex);
+      lastIndex = activeIndex;
+    }
+  });
+
+  document.addEventListener('click', (e) => { if (!ms.contains(e.target)) close(); });
+
+  // Toolbar actions
+  search.addEventListener('input', () => {
+    filterList(search.value);
+    const vis = visibleIndices();
+    setActiveIndex(vis[0] ?? activeIndex);
+  });
+
+  btnSelectAll.addEventListener('click', () => {
+    items.forEach((_, i) => setSelected(i, true));
+  });
+
+  btnClear.addEventListener('click', () => {
+    items.forEach((_, i) => setSelected(i, false));
+  });
+
+  // Public helper (optional)
+  ms.selectValues = (values) => {
+    Array.from(nativeSelect.options).forEach((o, i) => setSelected(i, values.includes(o.value)));
+  };
+})();
