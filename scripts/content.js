@@ -19,6 +19,25 @@
   const pausedState = new WeakMap();
   let mutationObserver = null;
 
+  let exercises = {};
+
+  async function loadExercises() {
+    const url = chrome.runtime.getURL("scripts/exercises.json");
+    const res = await fetch(url);
+    exercises = await res.json();
+  }
+
+  async function getRandomExercise() {
+    if (Object.keys(exercises).length === 0){ 
+      await loadExercises()
+      console.log("no exercise")
+    }
+    console.log("past exercize check", exercises)
+    const enabled = Object.entries(exercises);
+    if (enabled.length === 0) return null;
+    const [name, data] = enabled[Math.floor(Math.random() * enabled.length)];
+    return { name, steps: data.steps };
+  }
 
   function ensureOverlay() {
     if (!document.getElementById(STYLE_ID)) {
@@ -94,6 +113,18 @@
     }
   }
 
+async function showRandomExercise() {
+  const ex = await getRandomExercise();
+  if (!ex) {
+    document.getElementById("tab-locker-message").textContent = "couldn't fine exercise";
+    return;
+  }
+
+  // Example: ex = { name: "breathing", steps: ["Inhale", "Hold", "Exhale"] }
+  document.getElementById("tab-locker-message").innerHTML = ex.steps
+    .map((s, i) => `<div>${i + 1}. ${s}</div>`)
+    .join("");
+}
 
   function ensureAnimPauseStyle() {
     if (!document.getElementById(ANIM_PAUSE_STYLE_ID)) {
@@ -209,6 +240,7 @@
   function lockSafe() {
   if (isLocked) return;
   ensureOverlay();
+  showRandomExercise();
   const overlay = document.getElementById(OVERLAY_ID);
 
   // ... (save styles, pause media, block input, etc.)
@@ -246,7 +278,7 @@ function unlockSafe() {
   // ---------- Auto lock cycle ----------
   let lockIntervalId = null;
 
-  let lockDuration = 5000;
+  let lockDuration = 10000;
   let initialCycleTime = 20 * 60 * 1000;
   let minCycleTime = 10 * 60 * 1000;
   let cycleStep = 0.2 * 60 * 1000;
