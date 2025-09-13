@@ -247,12 +247,36 @@
 
   // ---------- Auto lock cycle ----------
   let lockIntervalId = null;
-  let lockDuration = 5000; // 5s lock
-  let cycleTime = 10000;   // default = 10s
+  let lockDuration = 5000; // 5s lock duration
+  let initialCycleTime = 20 * 60 * 1000; // start at 20 minutes
+  let minCycleTime = 10 * 60 * 1000;     // down to 10 minutes
+  let cycleStep = 0.2 * 60 * 1000;         // decrease by 1 minute each cycle
+  let currentCycleTime = initialCycleTime;
+
 
   function startAutoLockCycle() {
-    if (lockIntervalId) clearInterval(lockIntervalId);
+  if (lockIntervalId) clearInterval(lockIntervalId);
 
+  lockIntervalId = setInterval(() => {
+    ensureOverlay();
+    lockSafe();
+    console.log("[FoFix] auto-locked for", lockDuration, "ms");
+    setTimeout(() => {
+      unlockSafe();
+      console.log("[FoFix] auto-unlocked");
+    }, lockDuration);
+
+    // Gradually decrease interval
+    if (currentCycleTime > minCycleTime) {
+      currentCycleTime = Math.max(currentCycleTime - cycleStep, minCycleTime);
+      console.log("[FoFix] next lock in", currentCycleTime / 60000, "minutes");
+      restartInterval();
+    }
+  }, currentCycleTime);
+}
+
+  function restartInterval() {
+    if (lockIntervalId) clearInterval(lockIntervalId);
     lockIntervalId = setInterval(() => {
       ensureOverlay();
       lockSafe();
@@ -261,16 +285,17 @@
         unlockSafe();
         console.log("[FoFix] auto-unlocked");
       }, lockDuration);
-    }, cycleTime);
+
+      if (currentCycleTime > minCycleTime) {
+        currentCycleTime = Math.max(currentCycleTime - cycleStep, minCycleTime);
+        console.log("[FoFix] next lock in", currentCycleTime / 60000, "minutes");
+        restartInterval();
+      }
+    }, currentCycleTime);
   }
 
-  // Load saved time
-  chrome.storage.sync.get(["fofixTime"], (data) => {
-    if (data.fofixTime) {
-      cycleTime = parseFloat(data.fofixTime, 10) * 60 * 1000; // minutes → ms
-    }
-    startAutoLockCycle();
-  });
+currentCycleTime = initialCycleTime;
+startAutoLockCycle();
 
   // React to future changes
   chrome.storage.onChanged.addListener((changes, area) => {
