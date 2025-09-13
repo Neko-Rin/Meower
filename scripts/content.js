@@ -4,34 +4,42 @@
   const ANIM_PAUSE_STYLE_ID = "tab-locker-anim-pause-style";
   const BEFORE_UNLOAD_FLAG = "tab-locker-beforeunload";
 
-  // ---------- Overlay + input swallow ----------
+  // ---------- Global state & saved styles ----------
+  let isLocked = false;
+  let unlockingInProgress = false;
+  const saved = {
+    htmlPointer: "",
+    bodyPointer: "",
+    htmlOverflow: "",
+    bodyOverflow: "",
+    htmlFilter: ""
+  };
+
+  // ---------- Media state ----------
+  const pausedState = new WeakMap();
+  let mutationObserver = null;
+
+  // ---------- Overlay ----------
   function ensureOverlay() {
     if (!document.getElementById(STYLE_ID)) {
       const style = document.createElement("style");
       style.id = STYLE_ID;
       style.textContent = `
         #${OVERLAY_ID} {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,1);
-          color: #fff;
-          display: none;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
+          position: fixed; inset: 0; z-index: 2147483647;
+          background: rgba(0,0,0,0.88); color:#fff;
+          display:none; align-items:center; justify-content:center; text-align:center;
           font: 16px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-          z-index: 2147483647;
+          pointer-events:auto;
         }
-        #${OVERLAY_ID}.show { display: flex; }
+        #${OVERLAY_ID}.show { display:flex; }
         #${OVERLAY_ID} .box {
-          max-width: 520px;
-          padding: 24px 28px;
-          border-radius: 12px;
-          background: rgba(255,255,255,0.06);
-          backdrop-filter: blur(6px);
+          max-width:520px; padding:24px 28px; border-radius:12px;
+          background: rgba(255,255,255,0.06); backdrop-filter: blur(6px);
         }
-        #${OVERLAY_ID} h1 { margin: 0 0 12px; font-size: 20px; }
-        #${OVERLAY_ID} p { margin: 8px 0; line-height: 1.5; opacity: 0.9; }
+        #${OVERLAY_ID} h1 { margin:0 0 12px; font-size:20px; }
+        #${OVERLAY_ID} p { margin:8px 0; line-height:1.5; opacity:0.9; }
+        #tab-locker-unlock { margin-top:12px; padding:10px 14px; border:0; border-radius:8px; font-weight:600; cursor:pointer; }
       `;
       document.documentElement.appendChild(style);
     }
@@ -41,107 +49,28 @@
       overlay.tabIndex = -1;
       overlay.innerHTML = `
         <div class="box" role="dialog" aria-modal="true" aria-label="Screen Locked">
-          <h2>Screen Locked</h2>
+          <h1>Screen Locked</h1>
           <p>Interaction is disabled on this tab.</p>
-          <button id="tab-locker-unlock" type="button" aria-label="Unlock">Unlock</button>
-          <p><small>Use the extension popup or <kbd>Ctrl/⌘+Shift+L</kbd> to unlock.</small></p>
-          <h2>Mindfulness Break -- Box Breathing</h2>
-          <p>Take a few slow, deep breaths while watching this animation.</p>
-          <p>"'Box breathing' or 'tactical breathing' ... is characterized by equal inhale and hold and exhale ratios and has been used by members of the military for stress regulation and performance improvement" (Balban et al. 2023).</p>
-          <img src="${chrome.runtime.getURL("images/box-breathing.GIF")}" 
-              alt="Mindful breathing exercise"
-              style="max-width:100%; border-radius:8px; margin-top:12px;" />
-          </div>
+          <button id="tab-locker-unlock" type="button">Unlock</button>
+          <p><small>Or use the popup / Ctrl/⌘+Shift+L.</small></p>
+        </div>
       `;
       document.documentElement.appendChild(overlay);
 
       overlay.querySelector("#tab-locker-unlock").addEventListener("click", (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      enhancedBlockAllInputs(false);
-      console.log("[Tab Locker] Unlock clicked");
+        e.stopPropagation(); e.preventDefault();
+        unlockSafe();
       });
     }
   }
-  function beforeUnloadHandler(e) {
-    e.preventDefault();
-    e.returnValue = "";
-  }
 
-  function baseBlockAllInputs(enable) {
-  const overlay = document.getElementById(OVERLAY_ID);
-  if (!overlay) return;
-
-  if (enable) {
-    overlay.classList.add("show");
-    overlay.focus({ preventScroll: true });
-
-    // Only block events coming from OUTSIDE the overlay
-    const eat = (e) => {
-      if (overlay.contains(e.target)) return; // allow overlay + its button
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      return false;
-    };
-
-    overlay._listeners = [
-      ["keydown", eat, true],
-      ["keyup", eat, true],
-      ["keypress", eat, true],
-      ["mousedown", eat, true],
-      ["mouseup", eat, true],
-      //["click", eat, true],
-      ["dblclick", eat, true],
-      ["contextmenu", eat, true],
-      ["wheel", (e)=>{ if (!overlay.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } }, { capture: true, passive: false }],
-      ["touchstart", (e)=>{ if (!overlay.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } }, { capture: true, passive: false }],
-      ["touchmove", (e)=>{ if (!overlay.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } }, { capture: true, passive: false }],
-      ["touchend", eat, true],
-      ["pointerdown", eat, true],
-      ["pointerup", eat, true],
-      ["scroll", eat, true]
-    ];
-
-    overlay._listeners.forEach(([type, handler, opts]) => {
-      window.addEventListener(type, handler, opts);
-      document.addEventListener(type, handler, opts);
-    });
-
-    if (!window[BEFORE_UNLOAD_FLAG]) {
-      window.addEventListener("beforeunload", beforeUnloadHandler);
-      window[BEFORE_UNLOAD_FLAG] = true;
-    }
-  } else {
-    overlay.classList.remove("show");
-    if (overlay._listeners) {
-      overlay._listeners.forEach(([type, handler, opts]) => {
-        window.removeEventListener(type, handler, opts);
-        document.removeEventListener(type, handler, opts);
-      });
-      overlay._listeners = null;
-    }
-    document.documentElement.style.filter = "";
-    if (window[BEFORE_UNLOAD_FLAG]) {
-      window.removeEventListener("beforeunload", beforeUnloadHandler);
-      window[BEFORE_UNLOAD_FLAG] = false;
-    }
-  }
-}
-
-  // ---------- Media pause/resume + animation freeze ----------
-  const pausedState = new WeakMap(); // mediaEl -> { wasPlaying, time, playbackRate, muted }
-  let mutationObserver = null;
-  let isLocked = false;
-
+  // ---------- Animation freeze ----------
   function ensureAnimPauseStyle() {
     if (!document.getElementById(ANIM_PAUSE_STYLE_ID)) {
       const s = document.createElement("style");
       s.id = ANIM_PAUSE_STYLE_ID;
       s.textContent = `
-        * { 
-          animation-play-state: paused !important;
-          transition-property: none !important;
-        }
+        * { animation-play-state: paused !important; transition-property: none !important; }
         img { image-rendering: auto; }
       `;
       document.documentElement.appendChild(s);
@@ -152,6 +81,7 @@
     if (s) s.remove();
   }
 
+  // ---------- Media pause/resume ----------
   function pauseMediaInDocument(root = document) {
     const media = root.querySelectorAll?.("video, audio") || [];
     media.forEach((el) => {
@@ -208,7 +138,6 @@
     });
     mutationObserver.observe(document, { childList: true, subtree: true });
   }
-
   function stopObservingNewMedia() {
     if (mutationObserver) {
       mutationObserver.disconnect();
@@ -216,52 +145,121 @@
     }
   }
 
-  // ---------- Enhanced blocker that also pauses/resumes ----------
-  function enhancedBlockAllInputs(enable) {
-    if (enable) {
-      isLocked = true;
-      ensureAnimPauseStyle();
-      pauseMediaInDocument(document);
-      startObservingNewMedia();
-    } else {
-      isLocked = false;
-      stopObservingNewMedia();
-      removeAnimPauseStyle();
-      setTimeout(() => { resumeMediaInDocument(document); }, 0);
-    }
-    baseBlockAllInputs(enable);
+  // ---------- Keyboard guards ----------
+  function addKeyGuards(overlay) {
+    const eatKeysIfOutside = (e) => {
+      if (overlay.contains(e.target)) return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      return false;
+    };
+    overlay._keyGuards = [
+      ["keydown", eatKeysIfOutside, true],
+      ["keyup", eatKeysIfOutside, true],
+      ["keypress", eatKeysIfOutside, true],
+    ];
+    overlay._keyGuards.forEach(([t,h,o]) => {
+      window.addEventListener(t,h,o);
+      document.addEventListener(t,h,o);
+    });
+  }
+  function removeKeyGuards(overlay) {
+    if (!overlay._keyGuards) return;
+    overlay._keyGuards.forEach(([t,h,o]) => {
+      window.removeEventListener(t,h,o);
+      document.removeEventListener(t,h,o);
+    });
+    overlay._keyGuards = null;
   }
 
-  // ---------- Message wiring (defined AFTER functions exist) ----------
-  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-    if (msg?.type === "TAB_LOCKER_TOGGLE" || msg?.type === "TAB_LOCKER_SET") {
-      ensureOverlay();
-      const overlay = document.getElementById(OVERLAY_ID);
-      const currentlyLocked = overlay?.classList.contains("show");
-      const target = msg.type === "TAB_LOCKER_TOGGLE" ? !currentlyLocked : Boolean(msg.enabled);
-      enhancedBlockAllInputs(target);
-      sendResponse?.({ locked: target });
-      return true;
+  // ---------- Before unload ----------
+  function beforeUnloadHandler(e) { e.preventDefault(); e.returnValue = ""; }
+
+  // ---------- Lock / Unlock ----------
+  function lockSafe() {
+    if (isLocked) return;
+    ensureOverlay();
+    const overlay = document.getElementById(OVERLAY_ID);
+
+    // Save styles
+    saved.htmlPointer = document.documentElement.style.pointerEvents;
+    saved.bodyPointer = document.body ? document.body.style.pointerEvents : "";
+    saved.htmlOverflow = document.documentElement.style.overflow;
+    saved.bodyOverflow = document.body ? document.body.style.overflow : "";
+    saved.htmlFilter = document.documentElement.style.filter;
+
+    // Block inputs
+    document.documentElement.style.pointerEvents = "none";
+    if (document.body) document.body.style.pointerEvents = "none";
+    overlay.style.pointerEvents = "auto";
+    document.documentElement.style.overflow = "hidden";
+    if (document.body) document.body.style.overflow = "hidden";
+
+    // Media + animations
+    ensureAnimPauseStyle();
+    pauseMediaInDocument(document);
+    startObservingNewMedia();
+
+    // Keys + unload
+    addKeyGuards(overlay);
+    if (!window[BEFORE_UNLOAD_FLAG]) {
+      window.addEventListener("beforeunload", beforeUnloadHandler);
+      window[BEFORE_UNLOAD_FLAG] = true;
     }
-  });
 
-  // ======== JOHN CODE STARTS HERE =========
+    overlay.classList.add("show");
+    overlay.focus({ preventScroll: true });
 
-  // --- Auto lock cycle controlled by fofixTime ---
+    isLocked = true;
+  }
+
+  function unlockSafe() {
+    if (!isLocked || unlockingInProgress) return;
+    unlockingInProgress = true;
+    const overlay = document.getElementById(OVERLAY_ID);
+    if (!overlay) { unlockingInProgress = false; return; }
+
+    overlay.classList.remove("show");
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(async () => {
+        stopObservingNewMedia();
+        removeAnimPauseStyle();
+        await resumeMediaInDocument(document);
+
+        // Restore
+        document.documentElement.style.pointerEvents = saved.htmlPointer;
+        if (document.body) document.body.style.pointerEvents = saved.bodyPointer;
+        document.documentElement.style.overflow = saved.htmlOverflow;
+        if (document.body) document.body.style.overflow = saved.bodyOverflow;
+        document.documentElement.style.filter = saved.htmlFilter;
+
+        removeKeyGuards(overlay);
+        if (window[BEFORE_UNLOAD_FLAG]) {
+          window.removeEventListener("beforeunload", beforeUnloadHandler);
+          window[BEFORE_UNLOAD_FLAG] = false;
+        }
+
+        isLocked = false;
+        unlockingInProgress = false;
+      });
+    });
+  }
+
+  // ---------- Auto lock cycle ----------
   let lockIntervalId = null;
-  let lockDuration = 48000; // always 48s lock
-  let cycleTime = 58000;   // default = 48+10=58s
+  let lockDuration = 5000; // 5s lock
+  let cycleTime = 10000;   // default = 10s
 
   function startAutoLockCycle() {
     if (lockIntervalId) clearInterval(lockIntervalId);
 
     lockIntervalId = setInterval(() => {
       ensureOverlay();
-      enhancedBlockAllInputs(true); // lock
-      console.log("[Tab Locker] locked for", lockDuration, "ms");
+      lockSafe();
+      console.log("[FoFix] auto-locked for", lockDuration, "ms");
       setTimeout(() => {
-        enhancedBlockAllInputs(false); // unlock
-        console.log("[Tab Locker] unlocked");
+        unlockSafe();
+        console.log("[FoFix] auto-unlocked");
       }, lockDuration);
     }, cycleTime);
   }
@@ -269,7 +267,7 @@
   // Load saved time
   chrome.storage.sync.get(["fofixTime"], (data) => {
     if (data.fofixTime) {
-      cycleTime = parseFloat(data.fofixTime, 10) * 60 * 1000; // seconds → ms
+      cycleTime = parseFloat(data.fofixTime, 10) * 60 * 1000; // minutes → ms
     }
     startAutoLockCycle();
   });
@@ -277,14 +275,26 @@
   // React to future changes
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.fofixTime) {
-      cycleTime = (parseFloat(changes.fofixTime.newValue, 10) * 60 * 1000) + lockDuration;
-      console.log("[Tab Locker] updated cycleTime to", cycleTime, "ms");
+      cycleTime = parseFloat(changes.fofixTime.newValue, 10) * 60 * 1000;
+      console.log("[FoFix] updated cycleTime to", cycleTime, "ms");
       startAutoLockCycle();
     }
   });
 
+  // ---------- Message bridge ----------
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (msg?.type === "TAB_LOCKER_TOGGLE") {
+      if (isLocked) { unlockSafe(); sendResponse?.({ locked:false }); }
+      else { lockSafe(); sendResponse?.({ locked:true }); }
+      return true;
+    }
+    if (msg?.type === "TAB_LOCKER_SET") {
+      if (msg.enabled) { lockSafe(); sendResponse?.({ locked:true }); }
+      else { unlockSafe(); sendResponse?.({ locked:false }); }
+      return true;
+    }
+  });
 
-  // Load-time setup
+  // ---------- Ready ----------
   ensureOverlay();
-  console.log("[Tab Locker] content script ready on:", location.href);
 })();
