@@ -30,7 +30,8 @@
           background: rgba(255,255,255,0.06);
           backdrop-filter: blur(6px);
         }
-        #${OVERLAY_ID} h1 { margin: 0 0 12px; font-size: 20px; }
+        #${OVERLAY_ID} h1 { margin: 0 0 12px; font-size: 2em; color: #fff;}
+        #${OVERLAY_ID} h2 { margin: 0 0 12px; font-size: 1.2em; color: #fff;}
         #${OVERLAY_ID} p { margin: 8px 0; line-height: 1.5; opacity: 0.9; }
       `;
       document.documentElement.appendChild(style);
@@ -41,10 +42,9 @@
       overlay.tabIndex = -1;
       overlay.innerHTML = `
         <div class="box" role="dialog" aria-modal="true" aria-label="Screen Locked">
-          <h2>Screen Locked</h2>
+          <h1>Screen Locked</h1>
           <p>Interaction is disabled on this tab.</p>
           <button id="tab-locker-unlock" type="button" aria-label="Unlock">Unlock</button>
-          <p><small>Use the extension popup or <kbd>Ctrl/⌘+Shift+L</kbd> to unlock.</small></p>
           <h2>Mindfulness Break -- Box Breathing</h2>
           <p>Take a few slow, deep breaths while watching this animation.</p>
           <p>"'Box breathing' or 'tactical breathing' ... is characterized by equal inhale and hold and exhale ratios and has been used by members of the military for stress regulation and performance improvement" (Balban et al. 2023).</p>
