@@ -217,35 +217,60 @@ function unlockSafe() {
 
   // ---------- Auto lock cycle ----------
   let lockIntervalId = null;
+
   let lockDuration = 5000;
   let initialCycleTime = 20 * 60 * 1000;
   let minCycleTime = 10 * 60 * 1000;
   let cycleStep = 0.2 * 60 * 1000;
+  
   let currentCycleTime = initialCycleTime;
 
 
   function startAutoLockCycle() {
-    if (lockIntervalId) clearInterval(lockIntervalId);
+  if (lockIntervalId) clearInterval(lockIntervalId);
 
+  lockIntervalId = setInterval(() => {
+    ensureOverlay();
+    lockSafe();
+    console.log("[FoFix] auto-locked for", lockDuration, "ms");
+    setTimeout(() => {
+      unlockSafe();
+      console.log("[FoFix] auto-unlocked");
+    }, lockDuration);
+
+    // Gradually decrease interval
+    if (currentCycleTime > minCycleTime) {
+      currentCycleTime = Math.max(currentCycleTime - cycleStep, minCycleTime);
+      console.log("[FoFix] next lock in", currentCycleTime / 60000, "minutes");
+      restartInterval();
+    }
+  }, currentCycleTime);
+}
+
+  function restartInterval() {
+    if (lockIntervalId) clearInterval(lockIntervalId);
     lockIntervalId = setInterval(() => {
       ensureOverlay();
       lockSafe();
-      setTimeout(() => unlockSafe(), lockDuration);
+
+      console.log("[FoFix] auto-locked for", lockDuration, "ms");
+      setTimeout(() => {
+        unlockSafe();
+        console.log("[FoFix] auto-unlocked");
+      }, lockDuration);
 
       if (currentCycleTime > minCycleTime) {
         currentCycleTime = Math.max(currentCycleTime - cycleStep, minCycleTime);
+        console.log("[FoFix] next lock in", currentCycleTime / 60000, "minutes");
+
         restartInterval();
       }
     }, currentCycleTime);
   }
 
-  function restartInterval() {
-    if (lockIntervalId) clearInterval(lockIntervalId);
-    startAutoLockCycle();
-  }
 
-  currentCycleTime = initialCycleTime;
-  startAutoLockCycle();
+currentCycleTime = initialCycleTime;
+startAutoLockCycle();
 
 
   chrome.storage.onChanged.addListener((changes, area) => {
