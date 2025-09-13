@@ -91,6 +91,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
   color: #6e4f32;
 }
 #tab-locker-unlock {
+  display: none;
   margin-top: 20px;
   padding: 12px 20px;
   border: 0;
@@ -298,7 +299,7 @@ function ensureAnimPauseStyle() {
     window[BEFORE_UNLOAD_FLAG] = true;
   }
 
-  // Show overlay with fade-in (you already have CSS: opacity 0 -> 1 on .show)
+  // Show overlay with fade-in (already have CSS: opacity 0 -> 1 on .show)
   overlay.style.display = "flex";        // ensure it's renderable before adding class
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -306,6 +307,11 @@ function ensureAnimPauseStyle() {
     });
   });
   overlay.focus({ preventScroll: true });
+
+  setTimeout(function() {
+    const btn = document.getElementById("tab-locker-unlock");
+    if (btn) btn.style.display = "inline-block"; // or "block"
+}, 7000);
 
   isLocked = true;
 }
@@ -345,6 +351,8 @@ async function unlockSafe() {
     window.removeEventListener("beforeunload", beforeUnloadHandler);
     window[BEFORE_UNLOAD_FLAG] = false;
   }
+  const btn = document.getElementById("tab-locker-unlock");
+  if (btn) btn.style.display = "none";
 
   isLocked = false;
   unlockingInProgress = false;
