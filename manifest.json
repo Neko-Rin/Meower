@@ -14,7 +14,7 @@
     "128": "images/icon.png"
   },
 
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "offscreen"],
   "host_permissions": ["https://www.instagram.com/*"],
 
   "background": { "service_worker": "scripts/background.js" },
@@ -28,7 +28,12 @@
       "match_about_blank": true
     }
   ],
-
+"web_accessible_resources": [
+    {
+      "resources": ["sql-wasm/sql-wasm.wasm", "exercises.json"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "commands": {
     "toggle-lock": {
       "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },

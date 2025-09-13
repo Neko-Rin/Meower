@@ -13,7 +13,7 @@
         #${OVERLAY_ID} {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.88);
+          background: rgba(0,0,0,1);
           color: #fff;
           display: none;
           align-items: center;
@@ -36,6 +36,22 @@
       `;
       document.documentElement.appendChild(style);
     }
+
+    async function loadExercises() {
+      const url = chrome.runtime.getURL("data/exercises.json");
+      const res = await fetch(url);
+      return res.json(); // [{title, body}, ...]
+    }
+
+    function pickRandom(list) {
+      return list[Math.floor(Math.random() * list.length)];
+    }
+    
+    async function renderOverlayWithRandomExercise() {
+      const tips = await loadExercises();
+      const tip = pickRandom(tips);
+    }
+
     if (!document.getElementById(OVERLAY_ID)) {
       const overlay = document.createElement("div");
       overlay.id = OVERLAY_ID;
@@ -44,6 +60,9 @@
           <h1>Screen Locked</h1>
           <p>Interaction is disabled on this tab.</p>
           <p><small>Use the extension popup or <kbd>Ctrl/⌘+Shift+L</kbd> to unlock.</small></p>
+          <hr style="margin:16px 0; border:0; border-top:1px solid rgba(255,255,255,0.2)">
+          <h2 style="font-size:16px; margin:0 0 8px;">${tip.title}</h2>
+          <p style="font-size:14px; line-height:1.5;">${tip.body}</p>
         </div>
       `;
       document.documentElement.appendChild(overlay);
@@ -266,5 +285,6 @@ startBlockTimer();
 
   // Load-time setup
   ensureOverlay();
+  renderOverlayWithRandomExercise();
   console.log("[Tab Locker] content script ready on:", location.href);
 })();
