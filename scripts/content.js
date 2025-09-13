@@ -45,6 +45,11 @@
           <p>Interaction is disabled on this tab.</p>
           <button id="tab-locker-unlock" type="button" aria-label="Unlock">Unlock</button>
           <p><small>Use the extension popup or <kbd>Ctrl/⌘+Shift+L</kbd> to unlock.</small></p>
+          <h2>Mindfulness Break</h2>
+          <p>Take a few slow, deep breaths while watching this animation.</p>
+          <img src="${chrome.runtime.getURL("images/box-breathing.GIF")}" 
+              alt="Mindful breathing exercise"
+              style="max-width:100%; border-radius:8px; margin-top:12px;" />
         </div>
       `;
       document.documentElement.appendChild(overlay);
