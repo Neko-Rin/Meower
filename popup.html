@@ -1,17 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <style>
-      body { font: 14px system-ui, sans-serif; margin: 10px; width: 220px; }
-      button { width: 100%; padding: 10px; border: none; border-radius: 8px; }
-      .lock { background: #111; color: #fff; }
-      .status { margin-top: 8px; opacity: 0.8; }
-    </style>
-  </head>
-  <body>
-    <button id="toggle" class="lock">Toggle Lock (Tab)</button>
-    <div class="status" id="status">Current tab: unknown</div>
-    <script src="popup.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>FoFix</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Main Control View -->
+  <div id="main-view">
+    <h1 id="title">FoFix</h1>
+
+    <!-- Toggle switch + label together -->
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" id="toggle">
+        <span class="slider"></span>
+      </label>
+      <span id="toggle-label">Off</span>
+    </div>
+
+    <!-- Time input -->
+    <div class="input-group">
+      <label for="timeInput">Time Between Fix (ms):</label>
+      <input type="number" id="timeInput" value="1000" min="100">
+    </div>
+
+    <!-- Toggle 1 -->
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" class="fix-toggle" data-category="category1">
+        <span class="slider"></span>
+      </label>
+      <span id="label-category1">Placeholder 1</span>
+    </div>
+
+    <!-- Toggle 2 -->
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" class="fix-toggle" data-category="category2">
+        <span class="slider"></span>
+      </label>
+      <span id="label-category2">Placeholder 2</span>
+    </div>
+
+    <!-- Toggle 3 -->
+    <div class="toggle-container">
+      <label class="switch">
+        <input type="checkbox" class="fix-toggle" data-category="category3">
+        <span class="slider"></span>
+      </label>
+      <span id="label-category3">Placeholder 3</span>
+    </div>
+
+    <!-- Button to switch to fixes list -->
+    <button id="show-fixes">Show Fixes</button>
+  </div>
+
+  <!-- Fixes List View -->
+  <div id="fixes-view" style="display:none">
+    <h2>List of Fixes</h2>
+    <div id="fixes-container"></div>
+    <button id="back-button">Back</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
 </html>
