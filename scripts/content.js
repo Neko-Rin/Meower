@@ -13,7 +13,7 @@
         #${OVERLAY_ID} {
           position: fixed;
           inset: 0;
-          background: rgba(0,0,0,0.88);
+          background: rgba(0,0,0,1);
           color: #fff;
           display: none;
           align-items: center;
