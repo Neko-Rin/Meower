@@ -212,7 +212,7 @@ input:checked + .slider:before {
   position: fixed;
   inset: 0;
   z-index: 2147483647;
-  background: radial-gradient(circle, #ADD8E6, #00008B);
+  background: radial-gradient(circle, var(--color-muted-teal), var(--color-deep-blue));
   display: flex;
   align-items: center;
   justify-content: center;
