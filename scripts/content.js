@@ -130,10 +130,12 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
     }
   }
 
+  let timing = 5
+
 async function showRandomExercise() {
   const ex = await getRandomExercise();
   if (!ex) {
-    document.getElementById("tab-locker-message").textContent = "couldn't fine exercise";
+    document.getElementById("tab-locker-message").textContent = "couldn't find exercise";
     return;
   }
 
@@ -141,6 +143,8 @@ async function showRandomExercise() {
   document.getElementById("tab-locker-message").innerHTML = ex.steps
     .map((s, i) => `<div>${i + 1}. ${s}</div>`)
     .join("");
+
+    timing = ex.time
 }
 
 function ensureAnimPauseStyle() {
@@ -349,9 +353,9 @@ async function unlockSafe() {
   // ---------- Auto lock cycle ----------
   let lockIntervalId = null;
 
-  let lockDuration = 10000;
-  let initialCycleTime = 20 * 60 * 1000;
-  let minCycleTime = 10 * 60 * 1000;
+  let lockDuration = timing * 1000;
+  let initialCycleTime = 0.5 * 60 * 1000;
+  let minCycleTime = 0;
   let cycleStep = 0.2 * 60 * 1000;
   
   let currentCycleTime = initialCycleTime;
