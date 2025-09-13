@@ -98,8 +98,6 @@
         document.addEventListener(type, handler, opts);
       });
 
-      document.documentElement.style.filter = "blur(1px)";
-
       if (!window[BEFORE_UNLOAD_FLAG]) {
         window.addEventListener("beforeunload", beforeUnloadHandler);
         window[BEFORE_UNLOAD_FLAG] = true;
