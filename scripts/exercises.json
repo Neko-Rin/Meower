@@ -18,7 +18,7 @@
   "Take a 5-Minute Walk": {
     "enabled": false,
     "steps": [
-      "A 5-minute walk every 30 minutes could offset the effects of prolonged sitting."
+      "Go take a 5-minutue walk"
     ]
   },
   "Stand Up and Stretch": {
@@ -31,8 +31,19 @@
   "Progressive Muscle Relaxation": {
     "enabled": true,
     "steps": [
-      "Take a deep breath, notice the feeling of air filling your lungs, hold it, then release slowly.",
-      "Repeat more slowly, imagining the tension leaving your body."
+      "Take a deep breath in and out",
+      "Tense your feel by curling your toes. Pause and notice the feeling",
+      "Release the tension and notice the feeling of relaxation",
+      "Next, tense your thighs by squeezing your legs together. Pause and notice the feeling",
+      "Release",
+      "Squeeze your shoulder blades together. Pause",
+      "Release",
+      "Tense your arms",
+      "Release",
+      "Tense your neck and face",
+      "Release",
+      "Finally, tense your entire body and hold for a few seconds",
+      "Release and let your entire body go limp"
     ]
   },
   "54321 Senses": {
