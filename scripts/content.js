@@ -240,8 +240,8 @@
 
   // --- Auto lock cycle controlled by fofixTime ---
   let lockIntervalId = null;
-  let lockDuration = 5000; // always 5s lock
-  let cycleTime = 10000;   // default = 10s
+  let lockDuration = 48000; // always 48s lock
+  let cycleTime = 58000;   // default = 48+10=58s
 
   function startAutoLockCycle() {
     if (lockIntervalId) clearInterval(lockIntervalId);
@@ -268,7 +268,7 @@
   // React to future changes
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && changes.fofixTime) {
-      cycleTime = parseFloat(changes.fofixTime.newValue, 10) * 60 * 1000;
+      cycleTime = (parseFloat(changes.fofixTime.newValue, 10) * 60 * 1000) + lockDuration;
       console.log("[Tab Locker] updated cycleTime to", cycleTime, "ms");
       startAutoLockCycle();
     }
