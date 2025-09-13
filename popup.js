@@ -23,7 +23,12 @@ chrome.storage.sync.get(["fofixEnabled", "fofixTime"], (data) => {
 toggle.addEventListener("change", () => {
   const enabled = toggle.checked;
   toggleLabel.textContent = enabled ? "On" : "Off";
-  chrome.storage.sync.set({ fofixEnabled: enabled });
+
+  // Send message to current tab to toggle the overlay immediately
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    if (!tab?.id) return;
+    chrome.tabs.sendMessage(tab.id, { type: "TAB_LOCKER_TOGGLE" });
+  });
 });
 
 timeInput.addEventListener("input", () => {
