@@ -356,7 +356,7 @@ async function unlockSafe() {
 
   let lockDuration = timing * 1000;
   let initialCycleTime = 0.5 * 60 * 1000;
-  let minCycleTime = 0;
+  let minCycleTime = 5 * 1000;
   let cycleStep = 0.2 * 60 * 1000;
   
   let currentCycleTime = initialCycleTime;
