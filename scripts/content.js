@@ -280,9 +280,6 @@ function ensureAnimPauseStyle() {
   document.documentElement.style.overflow = "hidden";
   if (document.body) document.body.style.overflow = "hidden";
 
-  // Optional visual effect behind overlay
-  document.documentElement.style.filter = "blur(1px)";
-
   // --- Media & animations ---
   document.documentElement.classList.add("tab-locker-locked");
   ensureAnimPauseStyle();               // freeze CSS animations/transitions
