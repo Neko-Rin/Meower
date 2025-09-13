@@ -1,7 +1,38 @@
 {
-  "name": "FoFix"
+  "manifest_version": 3,
+  "name": "FoFix",
+  "version": "1.0",
+  "description": "Blocks interaction with the current tab via a full-screen overlay.",
   "action": {
     "default_popup": "popup.html",
-    "default_icon": "icon.png"
+    "default_icon": "images/icon.png"
+  },
+  "icons": {
+    "16": "images/icon.png",
+    "32": "images/icon.png",
+    "48": "images/icon.png",
+    "128": "images/icon.png"
+  },
+
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://www.instagram.com/*"],
+
+  "background": { "service_worker": "scripts/background.js" },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["scripts/content.js"],
+      "run_at": "document_start",
+      "all_frames": true,
+      "match_about_blank": true
+    }
+  ],
+
+  "commands": {
+    "toggle-lock": {
+      "suggested_key": { "default": "Ctrl+Shift+L", "mac": "Command+Shift+L" },
+      "description": "Toggle tab lock"
+    }
   }
 }

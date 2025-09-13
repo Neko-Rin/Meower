@@ -1,5 +1,17 @@
+<!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font: 14px system-ui, sans-serif; margin: 10px; width: 220px; }
+      button { width: 100%; padding: 10px; border: none; border-radius: 8px; }
+      .lock { background: #111; color: #fff; }
+      .status { margin-top: 8px; opacity: 0.8; }
+    </style>
+  </head>
   <body>
-    <h1>FoFix</h1>
+    <button id="toggle" class="lock">Toggle Lock (Tab)</button>
+    <div class="status" id="status">Current tab: unknown</div>
+    <script src="popup.js"></script>
   </body>
 </html>
