@@ -26,7 +26,24 @@
     const res = await fetch(url);
     exercises = await res.json();
   }
-
+function waitForFadeOut(overlay, timeoutMs = 1100) {
+  return new Promise((resolve) => {
+    let done = false;
+    const onEnd = (e) => {
+      if (e.target === overlay && e.propertyName === "opacity") {
+        if (!done) { done = true; overlay.removeEventListener("transitionend", onEnd); resolve(); }
+      }
+    };
+    overlay.addEventListener("transitionend", onEnd);
+    setTimeout(() => {
+      if (!done) {
+        done = true;
+        overlay.removeEventListener("transitionend", onEnd);
+        resolve();
+      }
+    }, timeoutMs);
+  });
+}
   async function getRandomExercise() {
     if (Object.keys(exercises).length === 0){ 
       await loadExercises()
@@ -126,17 +143,22 @@ async function showRandomExercise() {
     .join("");
 }
 
-  function ensureAnimPauseStyle() {
-    if (!document.getElementById(ANIM_PAUSE_STYLE_ID)) {
-      const s = document.createElement("style");
-      s.id = ANIM_PAUSE_STYLE_ID;
-      s.textContent = `
-        * { animation-play-state: paused !important; transition-property: none !important; }
-        img { image-rendering: auto; }
-      `;
-      document.documentElement.appendChild(s);
-    }
+function ensureAnimPauseStyle() {
+  let s = document.getElementById(ANIM_PAUSE_STYLE_ID);
+  if (!s) {
+    s = document.createElement("style");
+    s.id = ANIM_PAUSE_STYLE_ID;
+    s.textContent = `
+      /* While locked, pause animations/transitions everywhere EXCEPT the overlay */
+      html.tab-locker-locked *:not(#${OVERLAY_ID}):not(#${OVERLAY_ID} *) {
+        animation-play-state: paused !important;
+        /* disable transitions on page content; keep overlay's transitions alive */
+        transition-duration: 0s !important;
+      }
+    `;
+    document.head.appendChild(s);
   }
+}
 
   function removeAnimPauseStyle() {
     const s = document.getElementById(ANIM_PAUSE_STYLE_ID);
@@ -237,41 +259,93 @@ async function showRandomExercise() {
   function beforeUnloadHandler(e) { e.preventDefault(); e.returnValue = ""; }
 
 
-  function lockSafe() {
+  async function lockSafe() {
   if (isLocked) return;
-  ensureOverlay();
-  showRandomExercise();
+  ensureOverlay();              // your overlay builder
+  showRandomExercise?.();       // optional: populate text if you have this
   const overlay = document.getElementById(OVERLAY_ID);
+  if (!overlay) return;
 
-  // ... (save styles, pause media, block input, etc.)
+  // Save current inline styles to restore precisely
+  saved.htmlPointer  = document.documentElement.style.pointerEvents;
+  saved.bodyPointer  = document.body ? document.body.style.pointerEvents : "";
+  saved.htmlOverflow = document.documentElement.style.overflow;
+  saved.bodyOverflow = document.body ? document.body.style.overflow : "";
+  saved.htmlFilter   = document.documentElement.style.filter;
 
-  overlay.style.display = "flex";  // make sure element is visible
+  // Block interaction with the page; keep overlay interactive
+  document.documentElement.style.pointerEvents = "none";
+  if (document.body) document.body.style.pointerEvents = "none";
+  overlay.style.pointerEvents = "auto";
+  document.documentElement.style.overflow = "hidden";
+  if (document.body) document.body.style.overflow = "hidden";
+
+  // Optional visual effect behind overlay
+  document.documentElement.style.filter = "blur(1px)";
+
+  // --- Media & animations ---
+  document.documentElement.classList.add("tab-locker-locked");
+  ensureAnimPauseStyle();               // freeze CSS animations/transitions
+  pauseMediaInDocument(document);        // pause existing <video>/<audio>
+  startObservingNewMedia();              // pause newly added media while locked
+
+  // --- Keys & unload guards ---
+  addKeyGuards(overlay);
+  if (!window[BEFORE_UNLOAD_FLAG]) {
+    window.addEventListener("beforeunload", beforeUnloadHandler);
+    window[BEFORE_UNLOAD_FLAG] = true;
+  }
+
+  // Show overlay with fade-in (you already have CSS: opacity 0 -> 1 on .show)
+  overlay.style.display = "flex";        // ensure it's renderable before adding class
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      overlay.classList.add("show"); // now the transition triggers
+      overlay.classList.add("show");     // triggers transition: opacity 1
     });
   });
-
   overlay.focus({ preventScroll: true });
+
   isLocked = true;
 }
 
-function unlockSafe() {
+async function unlockSafe() {
   if (!isLocked || unlockingInProgress) return;
   unlockingInProgress = true;
+
   const overlay = document.getElementById(OVERLAY_ID);
   if (!overlay) { unlockingInProgress = false; return; }
 
-  overlay.classList.remove("show"); // fade-out starts
+  // Start fade-out
+  overlay.classList.remove("show");  // CSS opacity goes 1 -> 0
 
-  // wait for CSS transition to finish (matches 1s transition)
-  setTimeout(async () => {
-    overlay.style.display = "none"; // hide completely after fade-out
+  // Wait for the 1s transition (or fallback)
+  await waitForFadeOut(overlay, 1100);
+  overlay.style.display = "none";    // remove from the flow after fade
 
-    // ... (resume media, restore input, etc.)
-    unlockingInProgress = false;
-    isLocked = false;
-  }, 1000);
+  // --- stop watching & unfreeze animations first ---
+  stopObservingNewMedia();
+  document.documentElement.classList.remove("tab-locker-locked");
+  removeAnimPauseStyle();
+
+  // --- resume media ---
+  await resumeMediaInDocument(document);
+
+  // --- restore input/scroll/visuals EXACTLY to what they were ---
+  document.documentElement.style.pointerEvents = saved.htmlPointer;
+  if (document.body) document.body.style.pointerEvents = saved.bodyPointer;
+  document.documentElement.style.overflow = saved.htmlOverflow;
+  if (document.body) document.body.style.overflow = saved.bodyOverflow;
+  document.documentElement.style.filter = saved.htmlFilter;
+
+  // --- remove guards ---
+  removeKeyGuards(overlay);
+  if (window[BEFORE_UNLOAD_FLAG]) {
+    window.removeEventListener("beforeunload", beforeUnloadHandler);
+    window[BEFORE_UNLOAD_FLAG] = false;
+  }
+
+  isLocked = false;
+  unlockingInProgress = false;
 }
 
 
