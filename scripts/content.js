@@ -53,7 +53,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
     const enabled = Object.entries(exercises);
     if (enabled.length === 0) return null;
     const [name, data] = enabled[Math.floor(Math.random() * enabled.length)];
-    return { name, steps: data.steps };
+    return { name, steps: data.steps, source: data.source };
   }
 
   function ensureOverlay() {
@@ -118,7 +118,7 @@ function waitForFadeOut(overlay, timeoutMs = 1100) {
     <h1 id="tab-locker-title">Pause for a Breath</h1>
     <p id="tab-locker-message">Interaction is disabled on this tab.</p>
     <button id="tab-locker-unlock" type="button">Unlock</button>
-    <p><small>Or use the popup / Ctrl/⌘+Shift+L.</small></p>
+    <p id="academic"><small>source: you're mother</small></p>
   </div>`;
       document.documentElement.appendChild(overlay);
 
@@ -141,6 +141,7 @@ async function showRandomExercise() {
   document.getElementById("tab-locker-message").innerHTML = ex.steps
     .map((s, i) => `<div>${i + 1}. ${s}</div>`)
     .join("");
+  document.getElementById("academic").innerHTML=ex.source
 }
 
 function ensureAnimPauseStyle() {
