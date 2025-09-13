@@ -1,3 +1,4 @@
+/* ---------- Main body styling ---------- */
 body {
   width: 220px;
   font-family: Arial, sans-serif;
@@ -24,7 +25,7 @@ label {
   margin-bottom: 5px;
 }
 
-/* Toggle switch styling */
+/* ---------- Toggle switch styling ---------- */
 .switch {
   position: relative;
   display: inline-block;
@@ -41,7 +42,7 @@ label {
 .toggle-container {
   display: flex;
   align-items: center;
-  gap: 8px;   /* spacing between slider and text */
+  gap: 8px; /* spacing between slider and text */
   margin: 10px 0;
 }
 
@@ -76,4 +77,53 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(24px);
+}
+
+/* ---------- Overlay fade-in/fade-out styling ---------- */
+#tab-locker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: radial-gradient(circle, #ADD8E6, #00008B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font: 16px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  pointer-events: none; /* initially disabled */
+  opacity: 0;           /* initially invisible */
+  transition: opacity 1s ease-in-out;
+}
+
+#tab-locker-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#tab-locker-overlay .box {
+  max-width: 520px;
+  padding: 24px 28px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+}
+
+#tab-locker-overlay h1 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+#tab-locker-overlay p {
+  margin: 8px 0;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+#tab-locker-unlock {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
 }
