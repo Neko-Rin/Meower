@@ -113,6 +113,9 @@
   let mutationObserver = null;
   let isLocked = false;
 
+  // Timer for per-page blocking
+  let blockInterval = null;
+
   function ensureAnimPauseStyle() {
     if (!document.getElementById(ANIM_PAUSE_STYLE_ID)) {
       const s = document.createElement("style");
@@ -224,6 +227,42 @@
       return true;
     }
   });
+
+  function startBlockTimer() {
+  // Clear any existing timer
+  if (blockInterval) clearTimeout(blockInterval);
+
+  chrome.storage.sync.get(["fofixEnabled", "fofixTime"], (data) => {
+    const enabled = data.fofixEnabled;
+    const minutes = parseFloat(data.fofixTime || 1); // default 1 minute
+    const timeMs = minutes * 60 * 1000;              // convert minutes → milliseconds
+
+    if (!enabled) return;
+
+    blockInterval = setTimeout(() => {
+      enhancedBlockAllInputs(true); // block the screen
+      startBlockTimer();             // schedule next block
+    }, timeMs);
+  });
+}
+
+// Optional: stop the timer
+function stopBlockTimer() {
+  if (blockInterval) clearTimeout(blockInterval);
+}
+
+// Listen for changes from popup
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync") {
+    if ("fofixEnabled" in changes || "fofixTime" in changes) {
+      startBlockTimer();
+    }
+  }
+});
+
+// Start timer immediately when content script loads
+startBlockTimer();
+
 
   // Load-time setup
   ensureOverlay();
