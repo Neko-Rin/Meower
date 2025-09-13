@@ -19,58 +19,65 @@
       </label>
       <span id="toggle-label">Off</span>
     </div>
+  <!-- Time input -->
+  <div class="input-group">
+    <label for="timeInput">Time Between Fix (minutes):</label>
+    <input type="number" id="timeInput" value="1" min="0.1" step="0.1">
+  </div>
 
-    <!-- Time input -->
-    <div class="input-group">
-      <label for="timeInput">Time Between Fix (minutes):</label>
-      <input type="number" id="timeInput" value="1" min="0.1" step="0.1">
-    </div>
+  <!-- Add site input/button stays on main view -->
+  <input id="newSite" type="text" placeholder="Enter site..." />
+  <button id="addSite">Add Site</button>
 
-   <div class="field">
-  <label for="exercises">Select exercises:</label>
-  <p class="hint">Type to filter. Hold Shift for range select. ↑/↓ to move, Space to toggle.</p>
+  <hr />
 
-  <select name="exercises" id="exercises" multiple hidden>
-    <option value="box-breathing">Box Breathing</option>
-    <option value="physiological-sighing">Physiological Sighing</option>
-    <option value="walk">Five-Minute Walk</option>
-    <option value="stretch">Stand Up and Stretch</option>
-    <option value="muscle">Muscle Relaxation</option>
-    <option value="senses">5-4-3-2-1 Senses</option>
-  </select>
+  
+  <!-- Button to open Manage Sites view -->
+  <button id="manage-sites">Manage Sites</button>
 
-  <div class="ms" data-for="exercises">
-    <button
-      type="button"
-      class="ms-trigger"
-      aria-haspopup="listbox"
-      aria-expanded="false"
-      aria-controls="exercises-listbox"
-    >
-      <span class="ms-placeholder">Select exercises…</span>
-      <span class="ms-tags" aria-hidden="true"></span>
-      <span class="ms-caret" aria-hidden="true">▾</span>
-    </button>
 
-    <!-- Panel (hidden until .ms.open) -->
-    <div class="ms-panel" hidden>
-      <div class="ms-toolbar">
-        <input class="ms-search" type="text" placeholder="Filter options…" aria-label="Filter options">
-        <div class="ms-actions">
-          <button class="ms-btn ms-select-all" type="button">Select all</button>
-          <button class="ms-btn ms-clear" type="button">Clear all</button>
+    <!-- Exercise selection (existing) -->
+    <div class="field">
+      <label for="exercises">Select exercises:</label>
+      <p class="hint">Type to filter. Hold Shift for range select. ↑/↓ to move, Space to toggle.</p>
+
+      <select name="exercises" id="exercises" multiple hidden>
+        <option value="box-breathing">Box Breathing</option>
+        <option value="physiological-sighing">Physiological Sighing</option>
+        <option value="walk">Five-Minute Walk</option>
+        <option value="stretch">Stand Up and Stretch</option>
+        <option value="muscle">Progressive Muscle Relaxation</option>
+        <option value="senses">5-4-3-2-1 Senses</option>
+      </select>
+
+      <div class="ms" data-for="exercises">
+        <button type="button" class="ms-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="exercises-listbox">
+          <span class="ms-placeholder">Select exercises…</span>
+          <span class="ms-tags" aria-hidden="true"></span>
+          <span class="ms-caret" aria-hidden="true">▾</span>
+        </button>
+
+        <!-- Panel (hidden until .ms.open) -->
+        <div class="ms-panel" hidden>
+          <div class="ms-toolbar">
+            <input class="ms-search" type="text" placeholder="Filter options…" aria-label="Filter options">
+            <div class="ms-actions">
+              <button class="ms-btn ms-select-all" type="button">Select all</button>
+              <button class="ms-btn ms-clear" type="button">Clear all</button>
+            </div>
+          </div>
+
+          <ul class="ms-listbox" id="exercises-listbox" role="listbox" aria-multiselectable="true" tabindex="-1"></ul>
         </div>
       </div>
-
-      <ul
-        class="ms-listbox"
-        id="exercises-listbox"
-        role="listbox"
-        aria-multiselectable="true"
-        tabindex="-1"
-      ></ul>
     </div>
   </div>
+
+  <!-- Manage Sites View -->
+<div id="manage-view" style="display:none">
+  <h3>Manage Sites</h3>
+  <ul id="delete-list"></ul>
+  <button id="back-button">Back</button>
 </div>
 
   <script src="popup.js"></script>
