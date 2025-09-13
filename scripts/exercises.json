@@ -1,0 +1,48 @@
+{
+  "Box Breathing": {
+    "enabled": true,
+    "steps": [
+      "Breathe in for four seconds",
+      "Hold for four seconds",
+      "Breathe out for four seconds",
+      "Hold for four seconds"
+    ]
+  },
+  "Physiological Sighing": {
+    "enabled": true,
+    "steps": [
+      "Two sharp inhales",
+      "Long exhale, as if sighing"
+    ]
+  },
+  "Take a 5-Minute Walk": {
+    "enabled": false,
+    "steps": [
+      "A 5-minute walk every 30 minutes could offset the effects of prolonged sitting."
+    ]
+  },
+  "Stand Up and Stretch": {
+    "enabled": true,
+    "steps": [
+      "Stand up tall",
+      "Reach arms overhead and stretch for 10 seconds"
+    ]
+  },
+  "Progressive Muscle Relaxation": {
+    "enabled": true,
+    "steps": [
+      "Take a deep breath, notice the feeling of air filling your lungs, hold it, then release slowly.",
+      "Repeat more slowly, imagining the tension leaving your body."
+    ]
+  },
+  "54321 Senses": {
+    "enabled": true,
+    "steps": [
+      "Notice 5 things you can see",
+      "Notice 4 things you can feel",
+      "Notice 3 things you can hear",
+      "Notice 2 things you can smell",
+      "Notice 1 thing you can taste"
+    ]
+  }
+}
