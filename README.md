@@ -1,7 +1,2 @@
-# Meower
-This is the github repo for the hackcmu
-Goodest Luck 
-XOXO
-Rin
-
-hello :3 merge conflict testing?
+# FoFix
+A google extension that helps you break away from social media addiction, while helping you increase your focus.
