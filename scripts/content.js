@@ -21,7 +21,6 @@
           text-align: center;
           font: 16px system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
           z-index: 2147483647;
-          cursor: none;
         }
         #${OVERLAY_ID}.show { display: flex; }
         #${OVERLAY_ID} .box {
@@ -39,6 +38,7 @@
     if (!document.getElementById(OVERLAY_ID)) {
       const overlay = document.createElement("div");
       overlay.id = OVERLAY_ID;
+      overlay.tabIndex = -1;
       overlay.innerHTML = `
         <div class="box" role="dialog" aria-modal="true" aria-label="Screen Locked">
           <h1>Screen Locked</h1>
@@ -54,70 +54,78 @@
       `;
       document.documentElement.appendChild(overlay);
 
-      overlay.querySelector("#tab-locker-unlock")?.addEventListener("click", (e) => {
+      overlay.querySelector("#tab-locker-unlock").addEventListener("click", (e) => {
       e.stopPropagation();
       e.preventDefault();
-      // Call your existing unlock path
-      (window.__tabLocker_enhancedBlockAllInputs || blockAllInputs)(false);
-    });
+      enhancedBlockAllInputs(false);
+      console.log("[Tab Locker] Unlock clicked");
+      });
     }
   }
-
   function beforeUnloadHandler(e) {
     e.preventDefault();
     e.returnValue = "";
   }
 
   function baseBlockAllInputs(enable) {
-    const overlay = document.getElementById(OVERLAY_ID);
-    if (!overlay) return;
+  const overlay = document.getElementById(OVERLAY_ID);
+  if (!overlay) return;
 
-    if (enable) {
-      overlay.classList.add("show");
+  if (enable) {
+    overlay.classList.add("show");
+    overlay.focus({ preventScroll: true });
 
-      const eat = (e) => { e.preventDefault(); e.stopImmediatePropagation(); return false; };
-      overlay._listeners = [
-        ["keydown", eat, true],
-        ["keyup", eat, true],
-        ["keypress", eat, true],
-        ["mousedown", eat, true],
-        ["mouseup", eat, true],
-        ["click", eat, true],
-        ["dblclick", eat, true],
-        ["contextmenu", eat, true],
-        ["wheel", eat, { capture: true, passive: false }],
-        ["touchstart", eat, { capture: true, passive: false }],
-        ["touchmove", eat, { capture: true, passive: false }],
-        ["touchend", eat, true],
-        ["pointerdown", eat, true],
-        ["pointerup", eat, true],
-        ["scroll", eat, true]
-      ];
+    // Only block events coming from OUTSIDE the overlay
+    const eat = (e) => {
+      if (overlay.contains(e.target)) return; // allow overlay + its button
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      return false;
+    };
+
+    overlay._listeners = [
+      ["keydown", eat, true],
+      ["keyup", eat, true],
+      ["keypress", eat, true],
+      ["mousedown", eat, true],
+      ["mouseup", eat, true],
+      //["click", eat, true],
+      ["dblclick", eat, true],
+      ["contextmenu", eat, true],
+      ["wheel", (e)=>{ if (!overlay.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } }, { capture: true, passive: false }],
+      ["touchstart", (e)=>{ if (!overlay.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } }, { capture: true, passive: false }],
+      ["touchmove", (e)=>{ if (!overlay.contains(e.target)) { e.preventDefault(); e.stopImmediatePropagation(); } }, { capture: true, passive: false }],
+      ["touchend", eat, true],
+      ["pointerdown", eat, true],
+      ["pointerup", eat, true],
+      ["scroll", eat, true]
+    ];
+
+    overlay._listeners.forEach(([type, handler, opts]) => {
+      window.addEventListener(type, handler, opts);
+      document.addEventListener(type, handler, opts);
+    });
+
+    if (!window[BEFORE_UNLOAD_FLAG]) {
+      window.addEventListener("beforeunload", beforeUnloadHandler);
+      window[BEFORE_UNLOAD_FLAG] = true;
+    }
+  } else {
+    overlay.classList.remove("show");
+    if (overlay._listeners) {
       overlay._listeners.forEach(([type, handler, opts]) => {
-        window.addEventListener(type, handler, opts);
-        document.addEventListener(type, handler, opts);
+        window.removeEventListener(type, handler, opts);
+        document.removeEventListener(type, handler, opts);
       });
-
-      if (!window[BEFORE_UNLOAD_FLAG]) {
-        window.addEventListener("beforeunload", beforeUnloadHandler);
-        window[BEFORE_UNLOAD_FLAG] = true;
-      }
-    } else {
-      overlay.classList.remove("show");
-      if (overlay._listeners) {
-        overlay._listeners.forEach(([type, handler, opts]) => {
-          window.removeEventListener(type, handler, opts);
-          document.removeEventListener(type, handler, opts);
-        });
-        overlay._listeners = null;
-      }
-      document.documentElement.style.filter = "";
-      if (window[BEFORE_UNLOAD_FLAG]) {
-        window.removeEventListener("beforeunload", beforeUnloadHandler);
-        window[BEFORE_UNLOAD_FLAG] = false;
-      }
+      overlay._listeners = null;
+    }
+    document.documentElement.style.filter = "";
+    if (window[BEFORE_UNLOAD_FLAG]) {
+      window.removeEventListener("beforeunload", beforeUnloadHandler);
+      window[BEFORE_UNLOAD_FLAG] = false;
     }
   }
+}
 
   // ---------- Media pause/resume + animation freeze ----------
   const pausedState = new WeakMap(); // mediaEl -> { wasPlaying, time, playbackRate, muted }
